@@ -1357,11 +1357,17 @@
                     "avatar": {
                         "type": "string"
                     },
+                    "avatar_decoration": {
+                        "type": "string"
+                    },
                     "accent_color": {
                         "type": "integer"
                     },
                     "banner": {
                         "type": "string"
+                    },
+                    "banner_color": {
+                        "type": "integer"
                     },
                     "theme_colors": {
                         "type": "array",
@@ -3478,11 +3484,17 @@
                     "avatar": {
                         "type": "string"
                     },
+                    "avatar_decoration": {
+                        "type": "string"
+                    },
                     "accent_color": {
                         "type": "integer"
                     },
                     "banner": {
                         "type": "string"
+                    },
+                    "banner_color": {
+                        "type": "integer"
                     },
                     "bio": {
                         "type": "string"
@@ -6930,11 +6942,17 @@
                     "avatar": {
                         "type": "string"
                     },
+                    "avatar_decoration": {
+                        "type": "string"
+                    },
                     "accent_color": {
                         "type": "integer"
                     },
                     "banner": {
                         "type": "string"
+                    },
+                    "banner_color": {
+                        "type": "integer"
                     },
                     "bio": {
                         "type": "string"
@@ -7047,11 +7065,17 @@
                     "avatar": {
                         "type": "string"
                     },
+                    "avatar_decoration": {
+                        "type": "string"
+                    },
                     "accent_color": {
                         "type": "integer"
                     },
                     "banner": {
                         "type": "string"
+                    },
+                    "banner_color": {
+                        "type": "integer"
                     },
                     "bio": {
                         "type": "string"

@@ -93,7 +93,9 @@ router.get(
 			accent_color: user.accent_color,
 			banner: user.banner,
 			bio: req.user_bot ? null : user.bio,
-			bot: user.bot,
+			flags: user.flags,
+			avatar_decoration: user.avatar_decoration,
+			banner_color: user.banner_color,
 		};
 
 		const userProfile = {
@@ -102,6 +104,8 @@ router.get(
 			banner: user.banner,
 			pronouns: user.pronouns,
 			theme_colors: user.theme_colors,
+			emoji: null, // TODO:
+			popout_animation_particle_type: null, // TODO:
 		};
 
 		const guildMemberDto = guild_member
@@ -113,8 +117,7 @@ router.get(
 						guild_member.communication_disabled_until,
 					deaf: guild_member.deaf,
 					flags: user.flags,
-					is_pending: guild_member.pending,
-					pending: guild_member.pending, // why is this here twice, discord?
+					pending: guild_member.pending,
 					joined_at: guild_member.joined_at,
 					mute: guild_member.mute,
 					nick: guild_member.nick,
@@ -131,6 +134,9 @@ router.get(
 			banner: guild_member?.banner || null,
 			bio: guild_member?.bio || "",
 			guild_id,
+			theme_colors: null,
+			emoji: null, // TODO:
+			popout_animation_particle_type: null, // TODO:
 		};
 		res.json({
 			connected_accounts: user.connected_accounts.filter(
@@ -145,6 +151,8 @@ router.get(
 			user_profile: userProfile,
 			guild_member: guild_id && guildMemberDto,
 			guild_member_profile: guild_id && guildMemberProfile,
+			guild_badges: [], // TODO:
+			badges: [], // TODO:
 		});
 	},
 );

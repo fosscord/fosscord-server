@@ -48,8 +48,10 @@ export enum PublicUserEnum {
 	id,
 	public_flags,
 	avatar,
+	avatar_decoration,
 	accent_color,
 	banner,
+	banner_color,
 	bio,
 	bot,
 	premium_since,
@@ -104,10 +106,16 @@ export class User extends BaseClass {
 	avatar?: string; // hash of the user avatar
 
 	@Column({ nullable: true })
+	avatar_decoration?: string; // hash of the users avatar decoration
+
+	@Column({ nullable: true })
 	accent_color?: number; // banner color of user
 
 	@Column({ nullable: true })
 	banner?: string; // hash of the user banner
+
+	@Column({ nullable: true })
+	banner_color?: number; // the real banner color of the user? lol
 
 	// TODO: Separate `User` and `UserProfile` models
 	// puyo: changed from [number, number] because it breaks openapi
