@@ -36,4 +36,5 @@ export class RegisterConfiguration {
 	blockProxies: boolean = true;
 	incrementingDiscriminators: boolean = false; // random otherwise
 	defaultRights: string = "875069521787904"; // See `npm run generate:rights`
+	botDefaultRights: string = "303323475344384";
 }
