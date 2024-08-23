@@ -72,7 +72,7 @@ router.get(
 						`${Config.get().general.frontPage}/register?token=${
 							x.token
 						}`,
-			  )
+				)
 			: tokens.map((x) => x.token);
 
 		if (req.query.plain) return res.send(ret.join("\n"));

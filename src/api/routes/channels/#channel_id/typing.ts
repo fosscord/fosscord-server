@@ -54,7 +54,7 @@ router.post(
 								...member,
 								roles: member?.roles?.map((x) => x.id),
 							},
-					  }
+						}
 					: null),
 				channel_id,
 				timestamp,

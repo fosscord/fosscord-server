@@ -69,7 +69,7 @@ export interface MessageCreateSchema {
 }
 
 // TypeScript complains once this is used above
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 interface PollCreationSchema {
 	question: PollMedia;
 	answers: PollAnswer[];

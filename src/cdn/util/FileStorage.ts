@@ -40,11 +40,13 @@ export class FileStorage implements Storage {
 		path = getPath(path);
 		try {
 			return fs.readFileSync(path);
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (error) {
 			try {
 				const files = fs.readdirSync(path);
 				if (!files.length) return null;
 				return fs.readFileSync(join(path, files[0]));
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			} catch (error) {
 				return null;
 			}

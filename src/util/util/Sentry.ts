@@ -19,7 +19,6 @@
 import { yellow } from "picocolors";
 import { Config } from "./Config";
 
-import * as Integrations from "@sentry/integrations";
 import * as SentryNode from "@sentry/node";
 import express from "express";
 
@@ -33,7 +32,7 @@ export const Sentry = {
 			Config.get().sentry;
 		if (!enabled) return;
 
-		if (SentryNode.getCurrentHub().getClient()) return; // we've already initialised sentry
+		if (SentryNode.getCurrentScope().getClient()) return; // we've already initialised sentry
 
 		console.log("[Sentry] Enabling sentry...");
 
@@ -45,8 +44,11 @@ export const Sentry = {
 			);
 		}
 
+		// No longer needed they're auto discovered
+		// see https://github.com/getsentry/sentry-javascript/blob/develop/MIGRATION.md#performance-monitoring-integrations
+		/*
 		const integrations = [
-			new SentryNode.Integrations.Http({ tracing: true }),
+			new SentryNode.Integrations({ tracing: true }),
 			new Integrations.RewriteFrames({
 				root: __dirname,
 			}),
@@ -56,22 +58,25 @@ export const Sentry = {
 			}),
 			...SentryNode.autoDiscoverNodePerformanceMonitoringIntegrations(),
 		];
+		*/
 
 		if (app)
+			/*
 			integrations.push(
 				new SentryNode.Integrations.Express({
 					app,
 				}),
 			);
+			*/
 
-		SentryNode.init({
-			dsn: endpoint,
-			integrations,
-			tracesSampleRate: traceSampleRate, // naming?
-			environment,
-		});
+			SentryNode.init({
+				dsn: endpoint,
+				// integrations,
+				tracesSampleRate: traceSampleRate, // naming?
+				environment,
+			});
 
-		SentryNode.addGlobalEventProcessor((event) => {
+		SentryNode.addEventProcessor((event) => {
 			if (event.transaction) {
 				// Rewrite things that look like IDs to `:id` for sentry
 				event.transaction = event.transaction
@@ -111,8 +116,7 @@ export const Sentry = {
 		});
 
 		if (app) {
-			app.use(SentryNode.Handlers.requestHandler());
-			app.use(SentryNode.Handlers.tracingHandler());
+			SentryNode.setupExpressErrorHandler(app);
 		}
 	},
 
@@ -122,7 +126,6 @@ export const Sentry = {
 		if (errorHandlersUsed) return;
 		errorHandlersUsed = true;
 
-		app.use(SentryNode.Handlers.errorHandler());
 		// The typings for this are broken?
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
 		app.use(function onError(err: any, req: any, res: any, next: any) {

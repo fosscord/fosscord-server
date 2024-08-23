@@ -48,7 +48,7 @@ router.get(
 			: await Guild.find({
 					where: { features: Like("%DISCOVERABLE%") },
 					take: Math.abs(Number(limit || 24)),
-			  });
+				});
 		res.send({
 			recommended_guilds: guilds,
 			load_id: `server_recs/${genLoadId(32)}`,

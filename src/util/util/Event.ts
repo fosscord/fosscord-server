@@ -100,9 +100,9 @@ export async function listenEvent(
 		};
 
 		const listener = (msg: ProcessEvent) => {
-			msg.type === "event" &&
-				msg.id === event &&
+			if (msg.type === "event" && msg.id === event) {
 				callback({ ...msg.event, cancel });
+			}
 		};
 
 		// TODO: assert the type is correct?

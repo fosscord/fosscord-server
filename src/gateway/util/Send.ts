@@ -23,7 +23,9 @@ import path from "path";
 import { ErlpackType, JSONReplacer } from "@spacebar/util";
 let erlpack: ErlpackType | null = null;
 try {
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	erlpack = require("erlpack") as ErlpackType;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 } catch (e) {
 	// empty
 }

@@ -61,6 +61,7 @@ export class Attachment extends BaseClass {
 
 	@JoinColumn({ name: "message_id" })
 	@ManyToOne(
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		() => require("./Message").Message,
 		(message: import("./Message").Message) => message.attachments,
 		{

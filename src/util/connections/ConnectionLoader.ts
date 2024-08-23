@@ -33,6 +33,7 @@ export class ConnectionLoader {
 			try {
 				fs.readdirSync(path.join(root, x));
 				return true;
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			} catch (e) {
 				return false;
 			}
@@ -40,6 +41,7 @@ export class ConnectionLoader {
 
 		dirs.forEach(async (x) => {
 			const modPath = path.resolve(path.join(root, x));
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const mod = new (require(modPath).default)() as Connection;
 			ConnectionStore.connections.set(mod.id, mod);
 

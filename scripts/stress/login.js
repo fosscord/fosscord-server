@@ -1,4 +1,3 @@
-const fetch = require("node-fetch");
 const ENDPOINT = process.env.API || "http://localhost:3001";
 
 async function main() {

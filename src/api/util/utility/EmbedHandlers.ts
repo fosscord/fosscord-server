@@ -19,19 +19,22 @@
 import { Config, Embed, EmbedImage, EmbedType } from "@spacebar/util";
 import * as cheerio from "cheerio";
 import crypto from "crypto";
-import fetch, { RequestInit } from "node-fetch";
+import { promisify } from "node:util";
+import { createBrotliDecompress, createGunzip, createInflate } from "node:zlib";
 import { yellow } from "picocolors";
 import probe from "probe-image-size";
+import { pipeline } from "stream";
+import { TransformStream } from "stream/web";
 
 export const DEFAULT_FETCH_OPTIONS: RequestInit = {
 	redirect: "follow",
-	follow: 1,
 	headers: {
 		"user-agent":
 			"Mozilla/5.0 (compatible; Spacebar/1.0; +https://github.com/spacebarchat/server)",
+		"Accept-Encoding": "gzip, deflate, br",
 	},
 	// size: 1024 * 1024 * 5, 	// grabbed from config later
-	compress: true,
+	// compress: true,
 	method: "GET",
 };
 
@@ -100,6 +103,7 @@ const tryParseInt = (str: string | undefined) => {
 	if (!str) return undefined;
 	try {
 		return parseInt(str);
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (e) {
 		return undefined;
 	}
@@ -127,17 +131,67 @@ export const getMetaDescriptions = (text: string) => {
 	};
 };
 
+const pipelineAsync = promisify(pipeline);
+
 const doFetch = async (url: URL) => {
 	try {
-		return await fetch(url, {
+		const response = await fetch(url, {
 			...DEFAULT_FETCH_OPTIONS,
-			size: Config.get().limits.message.maxEmbedDownloadSize,
+			headers: {
+				...DEFAULT_FETCH_OPTIONS.headers,
+				"Accept-Encoding": "gzip, deflate, br",
+			},
 		});
+
+		const maxSize = Config.get().limits.message.maxEmbedDownloadSize;
+		const contentLength = response.headers.get("content-length");
+		if (contentLength && parseInt(contentLength) > maxSize) {
+			throw new Error(
+				`Response size exceeds the limit of ${maxSize} bytes`,
+			);
+		}
+
+		const encoding = response.headers.get("Content-Encoding");
+		if (!encoding || encoding === "identity") {
+			return await response.text();
+		}
+
+		let decompressedStream;
+		switch (encoding) {
+			case "gzip":
+				decompressedStream = createGunzip();
+				break;
+			case "deflate":
+				decompressedStream = createInflate();
+				break;
+			case "br":
+				decompressedStream = createBrotliDecompress();
+				break;
+			default:
+				throw new Error(`Unsupported encoding: ${encoding}`);
+		}
+
+		const decompressedChunks: Uint8Array[] = [];
+		if (response.body) {
+			const readableStream = response.body.pipeThrough(
+				new TransformStream({
+					transform(chunk, controller) {
+						decompressedChunks.push(chunk);
+						controller.enqueue(chunk);
+					},
+				}),
+			);
+
+			await pipelineAsync(readableStream, decompressedStream);
+		}
+
+		const decompressedBuffer = Buffer.concat(decompressedChunks);
+		return decompressedBuffer.toString("utf-8");
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (e) {
 		return null;
 	}
 };
-
 const genericImageHandler = async (url: URL): Promise<Embed | null> => {
 	const type = await fetch(url, {
 		...DEFAULT_FETCH_OPTIONS,
@@ -156,7 +210,7 @@ const genericImageHandler = async (url: URL): Promise<Embed | null> => {
 		// have to download the page, unfortunately
 		const response = await doFetch(url);
 		if (!response) return null;
-		const metas = getMetaDescriptions(await response.text());
+		const metas = getMetaDescriptions(await response);
 		image = makeEmbedImage(
 			metas.image || metas.image_fallback,
 			metas.width,
@@ -188,8 +242,7 @@ export const EmbedHandlers: {
 		const response = await doFetch(url);
 		if (!response) return null;
 
-		const text = await response.text();
-		const metas = getMetaDescriptions(text);
+		const metas = getMetaDescriptions(response);
 
 		// TODO: handle video
 
@@ -221,7 +274,7 @@ export const EmbedHandlers: {
 				? {
 						name: metas.site_name,
 						url: url.origin,
-				  }
+					}
 				: undefined,
 		};
 	},
@@ -236,7 +289,7 @@ export const EmbedHandlers: {
 	"www.facebook.com": async (url: URL) => {
 		const response = await doFetch(url);
 		if (!response) return null;
-		const metas = getMetaDescriptions(await response.text());
+		const metas = getMetaDescriptions(response);
 
 		return {
 			url: url.href,
@@ -269,12 +322,12 @@ export const EmbedHandlers: {
 				authorization: `Bearer ${token}`,
 			},
 		});
-		const json = await response.json();
+		const json = (await response.json()) as TwitterApiResponse;
 		if (json.errors) return null;
 		const author = json.includes.users[0];
-		const text = json.data.text;
-		const created_at = new Date(json.data.created_at);
-		const metrics = json.data.public_metrics;
+		const text = json.data[0].text;
+		const created_at = new Date(json.data[0].created_at);
+		const metrics = json.data[0].public_metrics;
 		const media = json.includes.media?.filter(
 			(x: { type: string }) => x.type == "photo",
 		);
@@ -359,7 +412,7 @@ export const EmbedHandlers: {
 	"open.spotify.com": async (url: URL) => {
 		const response = await doFetch(url);
 		if (!response) return null;
-		const metas = getMetaDescriptions(await response.text());
+		const metas = getMetaDescriptions(response);
 
 		return {
 			url: url.href,
@@ -379,7 +432,7 @@ export const EmbedHandlers: {
 	"www.pixiv.net": async (url: URL) => {
 		const response = await doFetch(url);
 		if (!response) return null;
-		const metas = getMetaDescriptions(await response.text());
+		const metas = getMetaDescriptions(response);
 
 		if (!metas.image) return null;
 
@@ -403,7 +456,7 @@ export const EmbedHandlers: {
 	"store.steampowered.com": async (url: URL) => {
 		const response = await doFetch(url);
 		if (!response) return null;
-		const metas = getMetaDescriptions(await response.text());
+		const metas = getMetaDescriptions(response);
 		const numReviews = metas.$("#review_summary_num_reviews").val() as
 			| string
 			| undefined;
@@ -482,7 +535,7 @@ export const EmbedHandlers: {
 	"www.youtube.com": async (url: URL): Promise<Embed | null> => {
 		const response = await doFetch(url);
 		if (!response) return null;
-		const metas = getMetaDescriptions(await response.text());
+		const metas = getMetaDescriptions(response);
 
 		return {
 			video: makeEmbedImage(
@@ -508,7 +561,7 @@ export const EmbedHandlers: {
 				? {
 						name: metas.author,
 						// TODO: author channel url
-				  }
+					}
 				: undefined,
 		};
 	},
@@ -518,7 +571,7 @@ export const EmbedHandlers: {
 		const response = await doFetch(url);
 		if (!response) return null;
 
-		const metas = getMetaDescriptions(await response.text());
+		const metas = getMetaDescriptions(response);
 		const hoverText = metas.$("#comic img").attr("title");
 
 		if (!metas.image) return null;
@@ -533,7 +586,7 @@ export const EmbedHandlers: {
 			footer: hoverText
 				? {
 						text: hoverText,
-				  }
+					}
 				: undefined,
 		};
 	},
@@ -554,3 +607,51 @@ export const EmbedHandlers: {
 		};
 	},
 };
+
+interface TweetMetrics {
+	retweet_count: number;
+	reply_count: number;
+	like_count: number;
+	quote_count: number;
+}
+
+interface Tweet {
+	public_metrics: TweetMetrics;
+	edit_history_tweet_ids: string[];
+	text: string;
+	id: string;
+	created_at: string;
+	author_id: string;
+}
+
+interface User {
+	profile_image_url: string;
+	name: string;
+	created_at: string;
+	id: string;
+	username: string;
+}
+interface Media {
+	url: string;
+	duration_ms: number;
+	type: string;
+	height: number;
+	media_key: string;
+	public_metrics: {
+		view_count: number;
+	};
+	preview_image_url: string;
+	width: number;
+}
+
+interface TwitterApiResponse {
+	errors: {
+		code: number;
+		message: string;
+	}[];
+	data: Tweet[];
+	includes: {
+		media: Media[];
+		users: User[];
+	};
+}

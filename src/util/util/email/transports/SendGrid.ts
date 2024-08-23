@@ -32,6 +32,7 @@ export default async function () {
 	let sg;
 	try {
 		// try to import the transporter package
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		sg = require("nodemailer-sendgrid-transport");
 	} catch {
 		// if the package is not installed, log an error and return void so we don't set the transporter

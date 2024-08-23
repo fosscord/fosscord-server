@@ -46,7 +46,7 @@ export class BaseClassWithoutId extends BaseEntity {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	toJSON(): any {
 		return Object.fromEntries(
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment, @typescript-eslint/no-non-null-assertion
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			this.metadata!.columns // @ts-ignore
 				.map((x) => [x.propertyName, this[x.propertyName]])
 				.concat(

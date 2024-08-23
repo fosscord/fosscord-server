@@ -47,11 +47,13 @@ const router = Router();
 async function getFile(path: string) {
 	try {
 		return fs.readFile(path);
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (error) {
 		try {
 			const files = await fs.readdir(path);
 			if (!files.length) return null;
 			return fs.readFile(join(path, files[0]));
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (error) {
 			return null;
 		}
@@ -75,7 +77,7 @@ router.get("/avatars/:id", async (req: Request, res: Response) => {
 
 	const file = await getFile(path);
 	if (!file) throw new HTTPError("not found", 404);
-	const type = await FileType.fromBuffer(file);
+	const type = await FileType.fileTypeFromBuffer(file);
 
 	res.set("Content-Type", type?.mime);
 	res.set("Cache-Control", "public, max-age=31536000");
@@ -100,7 +102,7 @@ router.get("/group-avatars/:id", async (req: Request, res: Response) => {
 
 	const file = await getFile(path);
 	if (!file) throw new HTTPError("not found", 404);
-	const type = await FileType.fromBuffer(file);
+	const type = await FileType.fileTypeFromBuffer(file);
 
 	res.set("Content-Type", type?.mime);
 	res.set("Cache-Control", "public, max-age=31536000");

@@ -20,12 +20,12 @@ import { Config, JimpType } from "@spacebar/util";
 import { Request, Response } from "express";
 import { yellow } from "picocolors";
 import crypto from "crypto";
-import fetch from "node-fetch";
 
 let sharp: undefined | false | { default: typeof import("sharp") } = undefined;
 
 let Jimp: JimpType | undefined = undefined;
 try {
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	Jimp = require("jimp") as JimpType;
 } catch {
 	// empty

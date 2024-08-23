@@ -323,7 +323,7 @@ export class Channel extends BaseClass {
 						event: "CHANNEL_CREATE",
 						data: channel,
 						guild_id: channel.guild_id,
-				  } as ChannelCreateEvent)
+					} as ChannelCreateEvent)
 				: Promise.resolve(),
 			Guild.insertChannelInOrder(guild.id, ret.id, position, guild),
 		]);

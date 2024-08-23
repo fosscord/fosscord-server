@@ -72,7 +72,7 @@ router.post(
 		await User.update({ id: user.id }, data);
 
 		// come on, the user has to have an email to reset their password in the first place
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
 		await Email.sendPasswordChanged(user, user.email!);
 
 		res.json({ token: await generateToken(user.id) });

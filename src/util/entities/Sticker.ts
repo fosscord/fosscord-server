@@ -56,6 +56,7 @@ export class Sticker extends BaseClass {
 	pack_id?: string;
 
 	@JoinColumn({ name: "pack_id" })
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	@ManyToOne(() => require("./StickerPack").StickerPack, {
 		onDelete: "CASCADE",
 		nullable: true,

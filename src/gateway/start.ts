@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-require("module-alias/register");
+import "module-alias/register";
 process.on("uncaughtException", console.error);
 process.on("unhandledRejection", console.error);
 

@@ -118,7 +118,7 @@ router.get(
 							guild: {
 								roles: x?.roles || [],
 							},
-					  });
+						});
 
 			return {
 				id: x.guild.id,

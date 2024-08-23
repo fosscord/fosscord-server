@@ -48,7 +48,6 @@ import {
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In } from "typeorm";
-import fetch from "node-fetch";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
@@ -136,8 +135,8 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 		if (opts.avatar_url) {
 			const avatarData = await fetch(opts.avatar_url);
 			const base64 = await avatarData
-				.buffer()
-				.then((x) => x.toString("base64"));
+				.arrayBuffer()
+				.then((x) => Buffer.from(x).toString("base64"));
 
 			const dataUri =
 				"data:" +

@@ -82,7 +82,7 @@ router.get(
 				? await Member.findOneOrFail({
 						where: { id: req.params.id, guild_id: guild_id },
 						relations: ["roles"],
-				  })
+					})
 				: undefined;
 
 		// TODO: make proper DTO's in util?

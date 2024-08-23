@@ -17,8 +17,6 @@
 */
 
 import "missing-native-js-functions";
-import fetch from "node-fetch";
-import { ProxyAgent } from "proxy-agent";
 import readline from "readline";
 import fs from "fs/promises";
 import path from "path";
@@ -75,11 +73,13 @@ async function download(url: string, dir: string) {
 	try {
 		// TODO: use file stream instead of buffer (to prevent crash because of high memory usage for big files)
 		// TODO check file hash
-		const agent = new ProxyAgent();
-		const response = await fetch(url, { agent });
-		const buffer = await response.buffer();
+		const response = await fetch(url);
+		const buffer = await response.arrayBuffer();
 		const tempDir = await fs.mkdtemp("spacebar");
-		await fs.writeFile(path.join(tempDir, "Spacebar.zip"), buffer);
+		await fs.writeFile(
+			path.join(tempDir, "Spacebar.zip"),
+			Buffer.from(buffer),
+		);
 	} catch (error) {
 		console.error(`[Auto Update] download failed`, error);
 	}
@@ -91,17 +91,21 @@ async function getCurrentVersion(dir: string) {
 			encoding: "utf8",
 		});
 		return JSON.parse(content).version;
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (error) {
 		throw new Error("[Auto update] couldn't get current version in " + dir);
 	}
 }
 
+type PackageJson = {
+	version: string;
+};
 async function getLatestVersion(url: string) {
 	try {
-		const agent = new ProxyAgent();
-		const response = await fetch(url, { agent });
-		const content = await response.json();
+		const response = await fetch(url);
+		const content = (await response.json()) as PackageJson;
 		return content.version;
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (error) {
 		throw new Error("[Auto update] check failed for " + url);
 	}

@@ -132,18 +132,22 @@ export class Permissions extends BitField {
 		init?: bigint,
 	) {
 		// TODO: do not deny any permissions if admin
-		return overwrites.reduce((permission, overwrite) => {
-			// apply disallowed permission
-			// * permission: current calculated permission (e.g. 010)
-			// * deny contains all denied permissions (e.g. 011)
-			// * allow contains all explicitly allowed permisions (e.g. 100)
-			return (
-				(permission & ~BigInt(overwrite.deny)) | BigInt(overwrite.allow)
-			);
-			// ~ operator inverts deny (e.g. 011 -> 100)
-			// & operator only allows 1 for both ~deny and permission (e.g. 010 & 100 -> 000)
-			// | operators adds both together (e.g. 000 + 100 -> 100)
-		}, init || BigInt(0));
+		return overwrites.reduce(
+			(permission, overwrite) => {
+				// apply disallowed permission
+				// * permission: current calculated permission (e.g. 010)
+				// * deny contains all denied permissions (e.g. 011)
+				// * allow contains all explicitly allowed permisions (e.g. 100)
+				return (
+					(permission & ~BigInt(overwrite.deny)) |
+					BigInt(overwrite.allow)
+				);
+				// ~ operator inverts deny (e.g. 011 -> 100)
+				// & operator only allows 1 for both ~deny and permission (e.g. 010 & 100 -> 000)
+				// | operators adds both together (e.g. 000 + 100 -> 100)
+			},
+			init || BigInt(0),
+		);
 	}
 
 	static rolePermission(roles: Role[]) {

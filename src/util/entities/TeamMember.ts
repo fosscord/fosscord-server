@@ -43,6 +43,7 @@ export class TeamMember extends BaseClass {
 
 	@JoinColumn({ name: "team_id" })
 	@ManyToOne(
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		() => require("./Team").Team,
 		(team: import("./Team").Team) => team.members,
 		{

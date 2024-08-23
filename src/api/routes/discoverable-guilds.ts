@@ -42,24 +42,24 @@ router.get(
 			guilds = showAllGuilds
 				? await Guild.find({
 						take: Math.abs(Number(limit || configLimit)),
-				  })
+					})
 				: await Guild.find({
 						where: { features: Like(`%DISCOVERABLE%`) },
 						take: Math.abs(Number(limit || configLimit)),
-				  });
+					});
 		} else {
 			guilds = showAllGuilds
 				? await Guild.find({
 						where: { primary_category_id: categories.toString() },
 						take: Math.abs(Number(limit || configLimit)),
-				  })
+					})
 				: await Guild.find({
 						where: {
 							primary_category_id: categories.toString(),
 							features: Like("%DISCOVERABLE%"),
 						},
 						take: Math.abs(Number(limit || configLimit)),
-				  });
+					});
 		}
 
 		const total = guilds ? guilds.length : undefined;

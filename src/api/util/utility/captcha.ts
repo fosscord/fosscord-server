@@ -17,7 +17,6 @@
 */
 
 import { Config } from "@spacebar/util";
-import fetch from "node-fetch";
 
 export interface hcaptchaResponse {
 	success: boolean;

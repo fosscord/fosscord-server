@@ -28,7 +28,6 @@ import {
 	Template,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import fetch from "node-fetch";
 const router: Router = Router();
 
 router.get(

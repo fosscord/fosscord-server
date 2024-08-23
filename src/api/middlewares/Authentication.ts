@@ -100,7 +100,6 @@ export async function Authentication(
 		req.rights = new Rights(Number(user.rights));
 		return next();
 	} catch (error) {
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		return next(new HTTPError(error!.toString(), 400));
 	}
 }

@@ -17,13 +17,13 @@
 */
 
 import os from "os";
-import osu from "node-os-utils";
 import { red } from "picocolors";
 
 export function initStats() {
+	const cpu = os.cpus();
 	console.log(`[Path] running in ${__dirname}`);
 	try {
-		console.log(`[CPU] ${osu.cpu.model()} Cores x${osu.cpu.count()}`);
+		console.log(`[CPU] ${cpu[0].model} Cores x${cpu.length}`);
 	} catch {
 		console.log("[CPU] Failed to get cpu model!");
 	}

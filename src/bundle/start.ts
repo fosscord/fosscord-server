@@ -17,7 +17,7 @@
 */
 
 // process.env.MONGOMS_DEBUG = "true";
-require("module-alias/register");
+import "module-alias/register";
 import "reflect-metadata";
 import cluster, { Worker } from "cluster";
 import os from "os";
@@ -32,6 +32,7 @@ const cores = process.env.THREADS ? parseInt(process.env.THREADS) : 1;
 function getCommitOrFail() {
 	try {
 		return execSync("git rev-parse HEAD").toString().trim();
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (e) {
 		return null;
 	}
@@ -75,6 +76,7 @@ Cores: ${cyan(os.cpus().length)} (Using ${cores} thread(s).)
 	console.log(`[Process] starting with ${cores} threads`);
 
 	if (cores === 1) {
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		require("./Server");
 	} else {
 		process.env.EVENT_TRANSMISSION = "process";
@@ -107,5 +109,6 @@ Cores: ${cyan(os.cpus().length)} (Using ${cores} thread(s).)
 		});
 	}
 } else {
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	require("./Server");
 }

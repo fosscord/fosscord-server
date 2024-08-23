@@ -30,6 +30,7 @@ export class Recipient extends BaseClass {
 	channel_id: string;
 
 	@JoinColumn({ name: "channel_id" })
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	@ManyToOne(() => require("./Channel").Channel, {
 		onDelete: "CASCADE",
 	})
@@ -40,6 +41,7 @@ export class Recipient extends BaseClass {
 	user_id: string;
 
 	@JoinColumn({ name: "user_id" })
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	@ManyToOne(() => require("./User").User, {
 		onDelete: "CASCADE",
 	})

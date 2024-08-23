@@ -70,7 +70,9 @@ router.get(
 		}
 
 		// Setup canvas
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		const { createCanvas, loadImage } = require("canvas");
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		const sizeOf = require("image-size");
 
 		// TODO: Widget style templates need Spacebar branding
@@ -211,6 +213,7 @@ async function drawIcon(
 	scale: number,
 	icon: string,
 ) {
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	const { loadImage } = require("canvas");
 	const img = await loadImage(await storage.get(icon));
 

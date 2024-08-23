@@ -29,7 +29,9 @@ const bigIntJson = BigIntJson({ storeAsString: true });
 
 let erlpack: ErlpackType | null = null;
 try {
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	erlpack = require("erlpack") as ErlpackType;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 } catch (e) {
 	// empty
 }
@@ -89,11 +91,11 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
 	}
 
 	try {
-		return await Sentry.startActiveSpan(
+		return await Sentry.startSpan(
 			{
 				op: "websocket.server",
 				name: `GATEWAY ${OPCODES[data.op]}`,
-				data: {
+				attributes: {
 					...data.d,
 					token: data?.d?.token ? "[Redacted]" : undefined,
 				},

@@ -417,7 +417,7 @@ router.post(
 				? Member.update(
 						{ id: req.user_id, guild_id: message.guild_id },
 						{ last_message_id: message.id },
-				  )
+					)
 				: null,
 			channel.save(),
 		]);
