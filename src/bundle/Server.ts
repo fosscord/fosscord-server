@@ -58,7 +58,7 @@ async function main() {
 
 	Sentry.errorHandler(app);
 
-	console.log(`[Server] ${green(`listening on port ${bold(port)}`)}`);
+	console.log(`[Server] ${green(`Listening on port ${bold(port)}`)}`);
 }
 
 main().catch(console.error);

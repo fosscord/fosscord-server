@@ -22,3 +22,9 @@ export function trimSpecial(str?: string): string {
 	if (!str) return "";
 	return str.replace(SPECIAL_CHAR, "").trim();
 }
+
+export function centerString(str: string, len: number): string {
+	const pad = len - str.length;
+	const padLeft = Math.floor(pad / 2) + str.length;
+	return str.padStart(padLeft).padEnd(len);
+}

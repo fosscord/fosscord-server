@@ -35,7 +35,7 @@ try {
 }
 
 if (cluster.isPrimary && process.env.NODE_ENV == "production") {
-	console.log(`Primary ${process.pid} is running`);
+	console.log(`Primary PID: ${process.pid}`);
 
 	// Fork workers.
 	for (let i = 0; i < cores; i++) {
@@ -43,7 +43,7 @@ if (cluster.isPrimary && process.env.NODE_ENV == "production") {
 	}
 
 	cluster.on("exit", (worker) => {
-		console.log(`worker ${worker.process.pid} died, restart worker`);
+		console.log(`Worker ${worker.process.pid} died, restarting worker`);
 		cluster.fork();
 	});
 } else {

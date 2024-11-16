@@ -18,18 +18,44 @@
 
 import os from "os";
 import osu from "node-os-utils";
+import { readFileSync } from "node:fs";
 import { red } from "picocolors";
 
 export function initStats() {
-	console.log(`[Path] running in ${__dirname}`);
+	console.log(`[Path] Running in ${process.cwd()}`);
+	console.log(`[Path] Running from ${__dirname}`);
 	try {
-		console.log(`[CPU] ${osu.cpu.model()} Cores x${osu.cpu.count()}`);
+		console.log(`[CPU] ${osu.cpu.model()} (x${osu.cpu.count()})`);
 	} catch {
-		console.log("[CPU] Failed to get cpu model!");
+		console.log("[CPU] Failed to get CPU model!");
 	}
 
-	console.log(`[System] ${os.platform()} ${os.arch()}`);
-	console.log(`[Process] running with PID: ${process.pid}`);
+	console.log(`[System] ${os.platform()} ${os.release()} ${os.arch()}`);
+	if (os.platform() == "linux") {
+		try {
+			const osReleaseLines = readFileSync(
+				"/etc/os-release",
+				"utf8",
+			).split("\n");
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			//@ts-ignore
+			const osRelease: any = {};
+			for (const line of osReleaseLines) {
+				if (!line) continue;
+				const [key, value] = line.match(/(.*?)="?([^"]*)"?/)!.slice(1);
+				osRelease[key] = value;
+			}
+			console.log(
+				`[System]\x1b[${osRelease.ANSI_COLOR}m ${osRelease.NAME ?? "Unknown"} ${osRelease.VERSION ?? "Unknown"} (${osRelease.BUILD_ID ?? "No build ID"})\x1b[0m`,
+			);
+		} catch (e) {
+			console.log(
+				"[System] Unknown Linux distribution (missing /etc/os-release)",
+			);
+			console.log(e);
+		}
+	}
+	console.log(`[Process] Running with PID: ${process.pid}`);
 	if (process.getuid && process.getuid() === 0) {
 		console.warn(
 			red(

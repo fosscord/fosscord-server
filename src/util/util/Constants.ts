@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2024 Spacebar and Spacebar Contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -351,6 +351,20 @@ export const ChannelTypes = {
 export const ClientApplicationAssetTypes = {
 	SMALL: 1,
 	BIG: 2,
+};
+
+export const AutomodActionTypes = {
+	BLOCK_MESSAGE: 1,
+	SEND_ALERT: 2,
+	TIMEOUT_MEMBER: 3,
+};
+
+export const AutomodTriggerTypes = {
+	CUSTOM_WORDS: 1,
+	UNKNOWN_2: 2,
+	SUSPECTED_SPAM_CONTENT: 3,
+	COMMONLY_FLAGGED_WORDS: 4,
+	MENTION_SPAM: 5,
 };
 
 export const Colors = {

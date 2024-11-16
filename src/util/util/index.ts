@@ -43,3 +43,4 @@ export * from "./TraverseDirectory";
 export * from "./WebAuthn";
 export * from "./Gifs";
 export * from "./Application";
+export * from "./Logo";
