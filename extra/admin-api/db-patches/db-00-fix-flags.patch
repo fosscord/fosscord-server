@@ -1,0 +1,15 @@
+diff --git a/extra/admin-api/Spacebar.Db/Models/User.cs b/extra/admin-api/Spacebar.Db/Models/User.cs
+index 7825bd17..ca140dbc 100644
+--- a/extra/admin-api/Spacebar.Db/Models/User.cs
++++ b/extra/admin-api/Spacebar.Db/Models/User.cs
+@@ -92,8 +92,8 @@ public partial class User
+     [Column("email", TypeName = "character varying")]
+     public string? Email { get; set; }
+ 
+-    [Column("flags")]
+-    public int Flags { get; set; }
++    [Column("flags", TypeName = "character varying")]
++    public string Flags { get; set; }
+ 
+     [Column("public_flags")]
+     public int PublicFlags { get; set; }

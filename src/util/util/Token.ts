@@ -19,17 +19,21 @@
 import jwt, { VerifyOptions } from "jsonwebtoken";
 import { Config } from "./Config";
 import { User } from "../entities";
+import crypto from "node:crypto";
+import fs from "fs/promises";
+import { existsSync } from "fs";
 // TODO: dont use deprecated APIs lol
 import {
 	FindOptionsRelationByString,
 	FindOptionsSelectByString,
 } from "typeorm";
+import * as console from "node:console";
 
 export const JWTOptions: VerifyOptions = { algorithms: ["HS256"] };
 
 export type UserTokenData = {
 	user: User;
-	decoded: { id: string; iat: number; email?: string };
+	decoded: { id: string; iat: number };
 };
 
 export const checkToken = (
@@ -43,56 +47,70 @@ export const checkToken = (
 		token = token.replace("Bot ", ""); // there is no bot distinction in sb
 		token = token.replace("Bearer ", ""); // allow bearer tokens
 
-		jwt.verify(
-			token,
-			Config.get().security.jwtSecret,
-			JWTOptions,
-			async (err, out) => {
-				const decoded = out as UserTokenData["decoded"];
-				if (err || !decoded) return reject("Invalid Token");
+		const validateUser: jwt.VerifyCallback = async (err, out) => {
+			const decoded = out as UserTokenData["decoded"];
+			if (err || !decoded) return reject("Invalid Token meow " + err);
 
-				const user = await User.findOne({
-					where: decoded.email
-						? { email: decoded.email }
-						: { id: decoded.id },
-					select: [
-						...(opts?.select || []),
-						"bot",
-						"disabled",
-						"deleted",
-						"rights",
-						"data",
-					],
-					relations: opts?.relations,
-				});
+			const user = await User.findOne({
+				where: { id: decoded.id },
+				select: [
+					...(opts?.select || []),
+					"bot",
+					"disabled",
+					"deleted",
+					"rights",
+					"data",
+				],
+				relations: opts?.relations,
+			});
 
-				if (!user) return reject("User not found");
+			if (!user) return reject("User not found");
 
-				// we need to round it to seconds as it saved as seconds in jwt iat and valid_tokens_since is stored in milliseconds
-				if (
-					decoded.iat * 1000 <
-					new Date(user.data.valid_tokens_since).setSeconds(0, 0)
-				)
-					return reject("Invalid Token");
+			// we need to round it to seconds as it saved as seconds in jwt iat and valid_tokens_since is stored in milliseconds
+			if (
+				decoded.iat * 1000 <
+				new Date(user.data.valid_tokens_since).setSeconds(0, 0)
+			)
+				return reject("Invalid Token");
 
-				if (user.disabled) return reject("User disabled");
-				if (user.deleted) return reject("User not found");
+			if (user.disabled) return reject("User disabled");
+			if (user.deleted) return reject("User not found");
 
-				return resolve({ decoded, user });
-			},
-		);
+			return resolve({ decoded, user });
+		};
+
+		const dec = jwt.decode(token, { complete: true });
+		if (!dec) return reject("Could not parse token");
+
+		if (dec.header.alg == "HS256") {
+			jwt.verify(
+				token,
+				Config.get().security.jwtSecret,
+				JWTOptions,
+				validateUser,
+			);
+		} else if (dec.header.alg == "ES512") {
+			loadOrGenerateKeypair().then((keyPair) => {
+				jwt.verify(
+					token,
+					keyPair.publicKey,
+					{ algorithms: ["ES512"] },
+					validateUser,
+				);
+			});
+		} else return reject("Invalid token algorithm");
 	});
 
-export async function generateToken(id: string, email?: string) {
+export async function generateToken(id: string) {
 	const iat = Math.floor(Date.now() / 1000);
-	const algorithm = "HS256";
+	const keyPair = await loadOrGenerateKeypair();
 
 	return new Promise((res, rej) => {
 		jwt.sign(
-			{ id, iat, email },
-			Config.get().security.jwtSecret,
+			{ id, iat, kid: keyPair.fingerprint },
+			keyPair.privateKey,
 			{
-				algorithm,
+				algorithm: "ES512",
 			},
 			(err, token) => {
 				if (err) return rej(err);
@@ -100,4 +118,45 @@ export async function generateToken(id: string, email?: string) {
 			},
 		);
 	});
+}
+
+// Get ECDSA keypair from file or generate it
+export async function loadOrGenerateKeypair() {
+	let privateKey: crypto.KeyObject;
+	let publicKey: crypto.KeyObject;
+
+	if (existsSync("jwt.key") && existsSync("jwt.key.pub")) {
+		const [loadedPrivateKey, loadedPublicKey] = await Promise.all([
+			fs.readFile("jwt.key"),
+			fs.readFile("jwt.key.pub"),
+		]);
+
+		privateKey = crypto.createPrivateKey(loadedPrivateKey);
+		publicKey = crypto.createPublicKey(loadedPublicKey);
+	} else {
+		console.log("[JWT] Generating new keypair");
+		const res = crypto.generateKeyPairSync("ec", {
+			namedCurve: "secp521r1",
+		});
+		privateKey = res.privateKey;
+		publicKey = res.publicKey;
+
+		await Promise.all([
+			fs.writeFile(
+				"jwt.key",
+				privateKey.export({ format: "pem", type: "sec1" }),
+			),
+			fs.writeFile(
+				"jwt.key.pub",
+				publicKey.export({ format: "pem", type: "spki" }),
+			),
+		]);
+	}
+
+	const fingerprint = crypto
+		.createHash("sha256")
+		.update(publicKey.export({ format: "pem", type: "spki" }))
+		.digest("hex");
+
+	return { privateKey, publicKey, fingerprint };
 }

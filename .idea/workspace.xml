@@ -26,32 +26,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "NIXITCH_NIXPKGS_CONFIG": "/etc/nix/nixpkgs-config.nix",
-    "NIXITCH_NIX_CONF_DIR": "",
-    "NIXITCH_NIX_OTHER_STORES": "",
-    "NIXITCH_NIX_PATH": "/home/Rory/.nix-defexpr/channels:nixpkgs=/nix/store/wb6agba4kfsxpbnb5hzlq58vkjzvbsk6-source",
-    "NIXITCH_NIX_PROFILES": "/run/current-system/sw /nix/var/nix/profiles/default /etc/profiles/per-user/Rory /home/Rory/.local/state/nix/profile /nix/profile /home/Rory/.nix-profile",
-    "NIXITCH_NIX_REMOTE": "",
-    "NIXITCH_NIX_USER_PROFILE_DIR": "/nix/var/nix/profiles/per-user/Rory",
-    "Node.js.Server.ts.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "javascript.nodejs.core.library.configured.version": "20.17.0",
-    "javascript.nodejs.core.library.typings.version": "20.17.10",
-    "last_opened_file_path": "/home/Rory/git/spacebar/server/src/admin-api/routes/v0",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "/nix/store/dcdc33kdjdhjnzg6rkmd0cx4kpwl8cac-nodejs-20.17.0/bin/node",
-    "nodejs_package_manager_path": "npm",
-    "npm.build.executor": "Run",
-    "npm.start.executor": "Debug",
-    "prettierjs.PrettierConfiguration.Package": "/home/Rory/git/spacebar/server/node_modules/prettier",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/home/Rory/git/spacebar/server/node_modules/typescript/lib"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;NIXITCH_NIXPKGS_CONFIG&quot;: &quot;/etc/nix/nixpkgs-config.nix&quot;,
+    &quot;NIXITCH_NIX_CONF_DIR&quot;: &quot;&quot;,
+    &quot;NIXITCH_NIX_OTHER_STORES&quot;: &quot;&quot;,
+    &quot;NIXITCH_NIX_PATH&quot;: &quot;/home/Rory/.nix-defexpr/channels:nixpkgs=/nix/store/wb6agba4kfsxpbnb5hzlq58vkjzvbsk6-source&quot;,
+    &quot;NIXITCH_NIX_PROFILES&quot;: &quot;/run/current-system/sw /nix/var/nix/profiles/default /etc/profiles/per-user/Rory /home/Rory/.local/state/nix/profile /nix/profile /home/Rory/.nix-profile&quot;,
+    &quot;NIXITCH_NIX_REMOTE&quot;: &quot;&quot;,
+    &quot;NIXITCH_NIX_USER_PROFILE_DIR&quot;: &quot;/nix/var/nix/profiles/per-user/Rory&quot;,
+    &quot;Node.js.Server.ts.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;20.17.0&quot;,
+    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;20.17.10&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/Rory/git/spacebar/server/src/admin-api/routes/v0&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;/nix/store/dcdc33kdjdhjnzg6rkmd0cx4kpwl8cac-nodejs-20.17.0/bin/node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.build.executor&quot;: &quot;Run&quot;,
+    &quot;npm.start.executor&quot;: &quot;Debug&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/home/Rory/git/spacebar/server/node_modules/prettier&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/Rory/git/spacebar/server/node_modules/typescript/lib&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/admin-api/routes/v0" />
@@ -88,7 +88,9 @@
       <workItem from="1735162864847" duration="110000" />
       <workItem from="1735162995609" duration="261000" />
       <workItem from="1735163422404" duration="28000" />
-      <workItem from="1735163530041" duration="14264000" />
+      <workItem from="1735163530041" duration="25785000" />
+      <workItem from="1735256039333" duration="390000" />
+      <workItem from="1735256441657" duration="15485000" />
     </task>
     <servers />
   </component>
@@ -106,7 +108,6 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/admin-api/Server.ts</url>
           <line>140</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>

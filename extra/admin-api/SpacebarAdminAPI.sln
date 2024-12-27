@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spacebar.Db", "Spacebar.Db\Spacebar.Db.csproj", "{524849DF-93BC-4632-B6C2-D05552C13887}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spacebar.AdminAPI", "Spacebar.AdminAPI\Spacebar.AdminAPI.csproj", "{00E58C53-0AC1-4113-8CCF-D299861EA8D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{524849DF-93BC-4632-B6C2-D05552C13887}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{524849DF-93BC-4632-B6C2-D05552C13887}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{524849DF-93BC-4632-B6C2-D05552C13887}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{524849DF-93BC-4632-B6C2-D05552C13887}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00E58C53-0AC1-4113-8CCF-D299861EA8D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00E58C53-0AC1-4113-8CCF-D299861EA8D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00E58C53-0AC1-4113-8CCF-D299861EA8D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00E58C53-0AC1-4113-8CCF-D299861EA8D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,33 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i nix -p nix
+#! nix shell nixpkgs#bash nixpkgs#dotnet-ef nixpkgs#postgresql --command bash
+
+set -ex
+rm -rfv Spacebar.Db
+
+# prep temporary db
+# - Update collation version for template1 just incase!
+psql -U postgres -c 'ALTER DATABASE template1 REFRESH COLLATION VERSION;'
+dropdb -U postgres sb-server-scaffold --if-exists --force || true
+createdb -U postgres sb-server-scaffold
+DATABASE=postgres://postgres@127.0.0.1/sb-server-scaffold nix shell nixpkgs#nodejs ../.. --command npm run sync:db
+
+# Create new project
+dotnet new classlib --no-restore -o Spacebar.Db
+cd Spacebar.Db
+rm Class1.cs
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL -n -f net9.0
+dotnet add package Microsoft.EntityFrameworkCore.Design -n -f net9.0
+
+dotnet-ef dbcontext scaffold "Host=127.0.0.1; Username=postgres; Database=sb-server-scaffold" \
+  Npgsql.EntityFrameworkCore.PostgreSQL \
+  -o Models \
+  -c SpacebarDbContext \
+  --context-dir Contexts \
+  --force \
+  --no-onconfiguring \
+  --data-annotations
+  
+for patch in db-patches/*.patch; do
+  patch -p3 < $patch
+done

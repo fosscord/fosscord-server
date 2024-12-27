@@ -1,0 +1,6 @@
+@Spacebar.AdminAPI_HostAddress = http://localhost:5112
+
+GET {{Spacebar.AdminAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
