@@ -127,7 +127,7 @@ router.patch(
 		}
 
 		if (body.new_password) {
-			if (!body.password && !user.email) {
+			if (!body.password && user.email) {
 				throw FieldErrors({
 					password: {
 						code: "BASE_TYPE_REQUIRED",
