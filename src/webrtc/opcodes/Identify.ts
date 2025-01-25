@@ -24,7 +24,7 @@ import {
 } from "@spacebar/util";
 import { endpoint, getClients, VoiceOPCodes, PublicIP } from "@spacebar/webrtc";
 import SemanticSDP from "semantic-sdp";
-const defaultSDP = require("./sdp.json");
+import defaultSDP from "./sdp.json";
 
 export async function onIdentify(this: WebSocket, data: Payload) {
 	clearTimeout(this.readyTimeout);
@@ -47,7 +47,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 		}),
 	);
 
-	this.client = {
+	this.webrtcClient = {
 		websocket: this,
 		out: {
 			tracks: new Map(),
@@ -61,24 +61,32 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 		channel_id: voiceState.channel_id,
 	};
 
-	const clients = getClients(voiceState.channel_id)!;
-	clients.add(this.client);
+	const clients = getClients(voiceState.channel_id);
+	clients.add(this.webrtcClient);
 
 	this.on("close", () => {
-		clients.delete(this.client!);
+		if (this.webrtcClient) clients.delete(this.webrtcClient);
 	});
 
 	await Send(this, {
 		op: VoiceOPCodes.READY,
 		d: {
 			streams: [
-				// { type: "video", ssrc: this.ssrc + 1, rtx_ssrc: this.ssrc + 2, rid: "100", quality: 100, active: false }
+				// {
+				// 	type: "video",
+				// 	ssrc: this.webrtcClient.in.video_ssrc,
+				// 	rtx_ssrc: this.webrtcClient.in.rtx_ssrc,
+				// 	rid: "100",
+				// 	quality: 100,
+				// 	active: false,
+				// },
 			],
-			ssrc: -1,
+			ssrc: 1,
 			port: endpoint.getLocalPort(),
 			modes: [
 				"aead_aes256_gcm_rtpsize",
 				"aead_aes256_gcm",
+				"aead_xchacha20_poly1305_rtpsize",
 				"xsalsa20_poly1305_lite_rtpsize",
 				"xsalsa20_poly1305_lite",
 				"xsalsa20_poly1305_suffix",

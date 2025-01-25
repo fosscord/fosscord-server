@@ -1,5 +1,4 @@
 {
-	"exclude": ["./src/webrtc"],
 	"include": ["./src"],
 	"compilerOptions": {
 		/* Visit https://aka.ms/tsconfig to read more about this file */
@@ -37,7 +36,8 @@
 			"@spacebar/api*": ["./api"],
 			"@spacebar/gateway*": ["./gateway"],
 			"@spacebar/cdn*": ["./cdn"],
-			"@spacebar/util*": ["./util"]
+			"@spacebar/util*": ["./util"],
+			"@spacebar/webrtc*":["./webrtc"]
 		} /* Specify a set of entries that re-map imports to additional lookup locations. */,
 		// "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
 		// "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */

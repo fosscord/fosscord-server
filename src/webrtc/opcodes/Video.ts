@@ -19,67 +19,78 @@
 import { Payload, Send, WebSocket } from "@spacebar/gateway";
 import { validateSchema, VoiceVideoSchema } from "@spacebar/util";
 import { channels, getClients, VoiceOPCodes } from "@spacebar/webrtc";
-import { IncomingStreamTrack, SSRCs } from "medooze-media-server";
+import {
+	IncomingStream,
+	IncomingStreamTrack,
+	SSRCs,
+	Transport,
+} from "medooze-media-server";
 import SemanticSDP from "semantic-sdp";
 
+function createStream(
+	this: WebSocket,
+	transport: Transport,
+	channel_id: string,
+) {
+	if (!this.webrtcClient) return;
+	if (!this.webrtcClient.transport) return;
+
+	const id = "stream" + this.user_id;
+
+	const stream = this.webrtcClient.transport.createIncomingStream(
+		SemanticSDP.StreamInfo.expand({
+			id,
+			tracks: [],
+		}),
+	);
+	this.webrtcClient.in.stream = stream;
+
+	const interval = setInterval(() => {
+		for (const track of stream.getTracks()) {
+			for (const layer of Object.values(track.getStats())) {
+				console.log(track.getId(), layer.total);
+			}
+		}
+	}, 5000);
+
+	stream.on("stopped", () => {
+		console.log("stream stopped");
+		clearInterval(interval);
+	});
+	this.on("close", () => {
+		transport.stop();
+	});
+	const out = transport.createOutgoingStream(
+		SemanticSDP.StreamInfo.expand({
+			id: "out" + this.user_id,
+			tracks: [],
+		}),
+	);
+	this.webrtcClient.out.stream = out;
+
+	const clients = channels.get(channel_id);
+	if (!clients) return;
+
+	clients.forEach((client) => {
+		if (client.websocket.user_id === this.user_id) return;
+		if (!client.in.stream) return;
+
+		client.in.stream?.getTracks().forEach((track) => {
+			attachTrack.call(this, track, client.websocket.user_id);
+		});
+	});
+}
+
 export async function onVideo(this: WebSocket, payload: Payload) {
-	if (!this.client) return;
-	const { transport, channel_id } = this.client;
+	if (!this.webrtcClient) return;
+	const { transport, channel_id } = this.webrtcClient;
 	if (!transport) return;
 	const d = validateSchema("VoiceVideoSchema", payload.d) as VoiceVideoSchema;
 
 	await Send(this, { op: VoiceOPCodes.MEDIA_SINK_WANTS, d: { any: 100 } });
 
-	const id = "stream" + this.user_id;
-
-	var stream = this.client.in.stream!;
-	if (!stream) {
-		stream = this.client.transport!.createIncomingStream(
-			// @ts-ignore
-			SemanticSDP.StreamInfo.expand({
-				id,
-				// @ts-ignore
-				tracks: [],
-			}),
-		);
-		this.client.in.stream = stream;
-
-		const interval = setInterval(() => {
-			for (const track of stream.getTracks()) {
-				for (const layer of Object.values(track.getStats())) {
-					console.log(track.getId(), layer.total);
-				}
-			}
-		}, 5000);
-
-		stream.on("stopped", () => {
-			console.log("stream stopped");
-			clearInterval(interval);
-		});
-		this.on("close", () => {
-			transport!.stop();
-		});
-		const out = transport.createOutgoingStream(
-			// @ts-ignore
-			SemanticSDP.StreamInfo.expand({
-				id: "out" + this.user_id,
-				// @ts-ignore
-				tracks: [],
-			}),
-		);
-		this.client.out.stream = out;
-
-		const clients = channels.get(channel_id)!;
-
-		clients.forEach((client) => {
-			if (client.websocket.user_id === this.user_id) return;
-			if (!client.in.stream) return;
-
-			client.in.stream?.getTracks().forEach((track) => {
-				attachTrack.call(this, track, client.websocket.user_id);
-			});
-		});
-	}
+	if (!this.webrtcClient.in.stream)
+		createStream.call(this, transport, channel_id);
 
 	if (d.audio_ssrc) {
 		handleSSRC.call(this, "audio", {
@@ -100,23 +111,32 @@ function attachTrack(
 	track: IncomingStreamTrack,
 	user_id: string,
 ) {
-	if (!this.client) return;
-	const outTrack = this.client.transport!.createOutgoingStreamTrack(
+	if (
+		!this.webrtcClient ||
+		!this.webrtcClient.transport ||
+		!this.webrtcClient.out.stream
+	)
+		return;
+
+	const outTrack = this.webrtcClient.transport.createOutgoingStreamTrack(
 		track.getMedia(),
 	);
 	outTrack.attachTo(track);
-	this.client.out.stream!.addTrack(outTrack);
-	var ssrcs = this.client.out.tracks.get(user_id)!;
+
+	this.webrtcClient.out.stream.addTrack(outTrack);
+	let ssrcs = this.webrtcClient.out.tracks.get(user_id);
 	if (!ssrcs)
-		ssrcs = this.client.out.tracks
+		ssrcs = this.webrtcClient.out.tracks
 			.set(user_id, { audio_ssrc: 0, rtx_ssrc: 0, video_ssrc: 0 })
-			.get(user_id)!;
+			.get(user_id);
+
+	if (!ssrcs) return; // hmm
 
 	if (track.getMedia() === "audio") {
-		ssrcs.audio_ssrc = outTrack.getSSRCs().media!;
+		ssrcs.audio_ssrc = outTrack.getSSRCs().media || 0;
 	} else if (track.getMedia() === "video") {
-		ssrcs.video_ssrc = outTrack.getSSRCs().media!;
-		ssrcs.rtx_ssrc = outTrack.getSSRCs().rtx!;
+		ssrcs.video_ssrc = outTrack.getSSRCs().media || 0;
+		ssrcs.rtx_ssrc = outTrack.getSSRCs().rtx || 0;
 	}
 
 	Send(this, {
@@ -129,23 +149,23 @@ function attachTrack(
 }
 
 function handleSSRC(this: WebSocket, type: "audio" | "video", ssrcs: SSRCs) {
-	if (!this.client) return;
-	const stream = this.client.in.stream!;
-	const transport = this.client.transport!;
+	if (!this.webrtcClient) return;
+	const stream = this.webrtcClient.in.stream as IncomingStream;
+	const transport = this.webrtcClient.transport as Transport;
 
 	const id = type + ssrcs.media;
-	var track = stream.getTrack(id);
+	let track = stream.getTrack(id);
 	if (!track) {
 		console.log("createIncomingStreamTrack", id);
 		track = transport.createIncomingStreamTrack(type, { id, ssrcs });
 		stream.addTrack(track);
 
-		const clients = getClients(this.client.channel_id)!;
+		const clients = getClients(this.webrtcClient.channel_id);
 		clients.forEach((client) => {
 			if (client.websocket.user_id === this.user_id) return;
 			if (!client.out.stream) return;
 
-			attachTrack.call(this, track, client.websocket.user_id);
+			attachTrack.call(client.websocket, track, this.user_id);
 		});
 	}
 }

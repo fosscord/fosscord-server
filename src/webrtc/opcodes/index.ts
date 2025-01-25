@@ -25,7 +25,7 @@ import { onSelectProtocol } from "./SelectProtocol";
 import { onSpeaking } from "./Speaking";
 import { onVideo } from "./Video";
 
-export type OPCodeHandler = (this: WebSocket, data: Payload) => any;
+export type OPCodeHandler = (this: WebSocket, data: Payload) => unknown;
 
 export default {
 	[VoiceOPCodes.HEARTBEAT]: onHeartbeat,
@@ -34,4 +34,4 @@ export default {
 	[VoiceOPCodes.VIDEO]: onVideo,
 	[VoiceOPCodes.SPEAKING]: onSpeaking,
 	[VoiceOPCodes.SELECT_PROTOCOL]: onSelectProtocol,
-};
+} as { [key: number]: OPCodeHandler };

@@ -56,6 +56,7 @@ export class Server {
 		}
 
 		this.server.on("upgrade", (request, socket, head) => {
+			if (request.url?.includes("voice")) return;
 			this.ws.handleUpgrade(request, socket, head, (socket) => {
 				this.ws.emit("connection", socket, request);
 			});
