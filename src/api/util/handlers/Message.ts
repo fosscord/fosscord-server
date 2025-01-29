@@ -87,7 +87,9 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
 	}
 
 	if (opts.author_id) {
-		message.author = await User.getPublicUser(opts.author_id);
+		message.author = await User.findOneOrFail({
+			where: { id: opts.author_id },
+		});
 		const rights = await getRights(opts.author_id);
 		rights.hasThrow("SEND_MESSAGES");
 	}

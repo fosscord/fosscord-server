@@ -17,14 +17,7 @@
 */
 
 import { Request } from "express";
-import {
-	Column,
-	Entity,
-	FindOneOptions,
-	JoinColumn,
-	OneToMany,
-	OneToOne,
-} from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
 import { Config, Email, FieldErrors, Snowflake, trimSpecial } from "..";
 import { BitField } from "../util/BitField";
 import { BaseClass } from "./BaseClass";
@@ -279,14 +272,12 @@ export class User extends BaseClass {
 		return user as UserPrivate;
 	}
 
-	static async getPublicUser(user_id: string, opts?: FindOneOptions<User>) {
-		return await User.findOneOrFail({
+	static async getPublicUser(user_id: string): Promise<PublicUser> {
+		const user = await User.findOneOrFail({
 			where: { id: user_id },
-			...opts,
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			//@ts-ignore
-			select: [...PublicUserProjection, ...(opts?.select || [])], // TODO: fix
+			select: PublicUserProjection,
 		});
+		return user.toPublicUser();
 	}
 
 	public static async generateDiscriminator(

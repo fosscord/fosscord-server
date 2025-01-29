@@ -41,7 +41,10 @@ router.get(
 
 		const { guild_id, with_mutual_guilds } = req.query;
 
-		const user = await User.getPublicUser(req.params.id, {
+		const user = await User.findOneOrFail({
+			where: {
+				id: req.params.id,
+			},
 			relations: ["connected_accounts"],
 		});
 
